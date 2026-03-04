@@ -10,6 +10,8 @@ public class PasswordConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+
+        // Strength 10 is default and secure
+        return new BCryptPasswordEncoder(10);
     }
 }

@@ -6,21 +6,23 @@ import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.repository.UserRepository;
 import com.yashwanth.sem.security.JwtUtil;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder,
+                           JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -28,12 +30,23 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid username"));
 
+        if (!user.isActive()) {
+            throw new RuntimeException("User account is disabled");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        String token = jwtUtil.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
 
-        return new LoginResponse(token, user.getUsername(), user.getRole().name());
+        return new LoginResponse(
+                token,
+                user.getUsername(),
+                user.getRole().name()
+        );
     }
 }
