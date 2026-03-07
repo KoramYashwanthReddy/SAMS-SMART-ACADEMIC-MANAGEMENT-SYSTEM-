@@ -9,7 +9,11 @@ import com.yashwanth.sem.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -18,19 +22,23 @@ public class CollegeAdminService {
     private final UserRepository userRepository;
     private final CollegeRepository collegeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserIdGeneratorService idGenerator;
 
     public CollegeAdminService(UserRepository userRepository,
                                CollegeRepository collegeRepository,
-                               PasswordEncoder passwordEncoder) {
+                               PasswordEncoder passwordEncoder,
+                               UserIdGeneratorService idGenerator) {
 
         this.userRepository = userRepository;
         this.collegeRepository = collegeRepository;
         this.passwordEncoder = passwordEncoder;
+        this.idGenerator = idGenerator;
     }
 
     // ================= CREATE ROLE USERS =================
 
-    public User createUser(CreateUserRequest request) {
+    public User createUser(CreateUserRequest request,
+                           MultipartFile photo) throws Exception {
 
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -43,6 +51,26 @@ public class CollegeAdminService {
         College college = collegeRepository.findById(request.getCollegeId())
                 .orElseThrow(() -> new RuntimeException("College not found"));
 
+        Long count = userRepository.count() + 1;
+
+        String systemId = idGenerator.generateUserId(
+                request.getRole(),
+                college,
+                count
+        );
+
+        String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
+
+        Path uploadDir = Paths.get("uploads");
+
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+
+        Path filePath = uploadDir.resolve(fileName);
+
+        Files.copy(photo.getInputStream(), filePath);
+
         User user = new User();
 
         user.setFirstName(request.getFirstName());
@@ -50,8 +78,14 @@ public class CollegeAdminService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
 
-        // 🔐 HASH PASSWORD HERE
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        user.setDepartment(request.getDepartment());
+        user.setCollegeUserId(request.getCollegeUserId());
+
+        user.setSystemUserId(systemId);
+
+        user.setProfilePhoto(filePath.toString());
 
         user.setRole(request.getRole());
         user.setCollege(college);

@@ -22,6 +22,10 @@ public class College {
 
     private String address;
 
+    private String website;
+
+    private String logo;
+
     @Enumerated(EnumType.STRING)
     private CollegeStatus status = CollegeStatus.PENDING;
 
@@ -69,6 +73,22 @@ public class College {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
     public CollegeStatus getStatus() {

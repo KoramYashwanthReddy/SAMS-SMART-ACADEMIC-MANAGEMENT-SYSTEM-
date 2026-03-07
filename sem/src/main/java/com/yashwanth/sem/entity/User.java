@@ -11,6 +11,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 🔹 System Generated ID (ST-AU-0001)
+    @Column(unique = true)
+    private String systemUserId;
+
+    // 🔹 College Given ID (21A81A0501)
+    @Column(nullable = false)
+    private String collegeUserId;
+
     private String firstName;
 
     private String lastName;
@@ -23,24 +31,43 @@ public class User {
 
     private String password;
 
+    private String department;
+
+    // Profile photo for ID card
+    private String profilePhoto;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     private boolean active = true;
 
     // 🔹 User belongs to a College
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "college_id")
     private College college;
 
     public User() {}
 
+    // ===== Getters & Setters =====
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getSystemUserId() {
+        return systemUserId;
+    }
+
+    public void setSystemUserId(String systemUserId) {
+        this.systemUserId = systemUserId;
+    }
+
+    public String getCollegeUserId() {
+        return collegeUserId;
+    }
+
+    public void setCollegeUserId(String collegeUserId) {
+        this.collegeUserId = collegeUserId;
     }
 
     public String getFirstName() {
@@ -81,6 +108,22 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 
     public Role getRole() {

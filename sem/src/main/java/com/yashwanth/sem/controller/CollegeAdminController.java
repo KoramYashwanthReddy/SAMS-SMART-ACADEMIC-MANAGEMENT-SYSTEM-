@@ -6,6 +6,7 @@ import com.yashwanth.sem.enums.Role;
 import com.yashwanth.sem.service.CollegeAdminService;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,12 +20,14 @@ public class CollegeAdminController {
         this.service = service;
     }
 
-    // ================= CREATE USERS =================
+    // ================= CREATE USERS WITH IMAGE =================
 
     @PostMapping("/users")
-    public User createUser(@RequestBody CreateUserRequest request) {
+    public User createUser(
+            @ModelAttribute CreateUserRequest request,
+            @RequestParam("photo") MultipartFile photo) throws Exception {
 
-        return service.createUser(request);
+        return service.createUser(request, photo);
     }
 
     // ================= GET ALL USERS IN COLLEGE =================

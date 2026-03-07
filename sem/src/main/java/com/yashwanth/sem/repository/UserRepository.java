@@ -14,10 +14,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findBySystemUserId(String systemUserId);
+
+    Optional<User> findByCollegeUserId(String collegeUserId);
+
     // Duplicate checks
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    boolean existsBySystemUserId(String systemUserId);
+
+    boolean existsByCollegeUserId(String collegeUserId);
 
     // Super admin check
     boolean existsByRole(Role role);
@@ -33,4 +41,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Dashboard counts
     long countByRole(Role role);
+
+    long countByCollegeId(Long collegeId);
+
 }
