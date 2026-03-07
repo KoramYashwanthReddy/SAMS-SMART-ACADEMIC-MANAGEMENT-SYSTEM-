@@ -19,21 +19,15 @@ public class Department {
     @Column(unique = true)
     private String code;
 
+    @Column(name = "dept_admin_id")
+    private Long deptAdminId;
+
     @Column(name = "hod_id")
     private Long hodId;
 
     private String status;
 
     public Department() {}
-
-    public Department(Long id, Long collegeId, String name, String code, Long hodId, String status) {
-        this.id = id;
-        this.collegeId = collegeId;
-        this.name = name;
-        this.code = code;
-        this.hodId = hodId;
-        this.status = status;
-    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -46,6 +40,9 @@ public class Department {
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
+
+    public Long getDeptAdminId() { return deptAdminId; }
+    public void setDeptAdminId(Long deptAdminId) { this.deptAdminId = deptAdminId; }
 
     public Long getHodId() { return hodId; }
     public void setHodId(Long hodId) { this.hodId = hodId; }

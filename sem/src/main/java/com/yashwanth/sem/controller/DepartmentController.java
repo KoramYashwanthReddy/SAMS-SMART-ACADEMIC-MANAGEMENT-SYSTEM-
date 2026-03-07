@@ -1,6 +1,5 @@
 package com.yashwanth.sem.controller;
 
-import com.yashwanth.sem.dto.DepartmentDTO;
 import com.yashwanth.sem.entity.Department;
 import com.yashwanth.sem.service.DepartmentService;
 
@@ -18,25 +17,41 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @PostMapping
-    public Department createDepartment(@RequestBody DepartmentDTO dto) {
-        return departmentService.createDepartment(dto);
-    }
+    // ================= GET BY COLLEGE =================
 
-    @GetMapping("/{collegeId}")
+    @GetMapping("/college/{collegeId}")
     public List<Department> getDepartments(@PathVariable Long collegeId) {
+
         return departmentService.getDepartments(collegeId);
     }
 
+    // ================= UPDATE =================
+
     @PutMapping("/{id}")
     public Department updateDepartment(@PathVariable Long id,
-                                       @RequestBody DepartmentDTO dto) {
-        return departmentService.updateDepartment(id, dto);
+                                       @RequestParam(required = false) String name,
+                                       @RequestParam(required = false) String code) {
+
+        return departmentService.updateDepartment(id, name, code);
     }
+
+    // ================= ASSIGN DEPT ADMIN =================
+
+    @PutMapping("/{departmentId}/assign-admin/{adminId}")
+    public Department assignDepartmentAdmin(
+            @PathVariable Long departmentId,
+            @PathVariable Long adminId) {
+
+        return departmentService.assignDepartmentAdmin(departmentId, adminId);
+    }
+
+    // ================= DELETE =================
 
     @DeleteMapping("/{id}")
     public String deleteDepartment(@PathVariable Long id) {
+
         departmentService.deleteDepartment(id);
+
         return "Department deleted successfully";
     }
 }

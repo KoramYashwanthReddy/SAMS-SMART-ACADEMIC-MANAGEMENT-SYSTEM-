@@ -2,6 +2,7 @@ package com.yashwanth.sem.repository;
 
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -9,7 +10,8 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Login
+    // ================= LOGIN =================
+
     Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
@@ -18,7 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByCollegeUserId(String collegeUserId);
 
-    // Duplicate checks
+    // ================= DUPLICATE CHECKS =================
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
@@ -27,21 +30,48 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByCollegeUserId(String collegeUserId);
 
-    // Super admin check
+    // ================= ROLE CHECK =================
+
     boolean existsByRole(Role role);
 
-    // Get users by role
+    // ================= GET USERS BY ROLE =================
+
     List<User> findByRole(Role role);
 
-    // Users by college
+    // ================= USERS BY COLLEGE =================
+
     List<User> findByCollegeId(Long collegeId);
 
-    // Users by role in college
+    // ================= USERS BY ROLE IN COLLEGE =================
+
     List<User> findByCollegeIdAndRole(Long collegeId, Role role);
 
-    // Dashboard counts
+    // ================= USERS BY DEPARTMENT =================
+
+    List<User> findByDepartment(String department);
+
+    // ================= USERS BY DEPARTMENT AND ROLE =================
+
+    List<User> findByDepartmentAndRole(String department, Role role);
+
+    // ================= USERS BY COLLEGE + DEPARTMENT =================
+
+    List<User> findByCollegeIdAndDepartment(Long collegeId, String department);
+
+    // ================= TEACHERS IN DEPARTMENT =================
+
+    List<User> findByCollegeIdAndDepartmentAndRole(
+            Long collegeId,
+            String department,
+            Role role
+    );
+
+    // ================= DASHBOARD COUNTS =================
+
     long countByRole(Role role);
 
     long countByCollegeId(Long collegeId);
+
+    long countByDepartment(String department);
 
 }

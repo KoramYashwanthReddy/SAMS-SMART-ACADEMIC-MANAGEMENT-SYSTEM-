@@ -1,6 +1,8 @@
 package com.yashwanth.sem.controller;
 
 import com.yashwanth.sem.dto.CreateUserRequest;
+import com.yashwanth.sem.dto.DepartmentDTO;
+import com.yashwanth.sem.entity.Department;
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
 import com.yashwanth.sem.service.CollegeAdminService;
@@ -20,7 +22,7 @@ public class CollegeAdminController {
         this.service = service;
     }
 
-    // ================= CREATE USERS WITH IMAGE =================
+    // ================= CREATE USERS =================
 
     @PostMapping("/users")
     public User createUser(
@@ -30,11 +32,10 @@ public class CollegeAdminController {
         return service.createUser(request, photo);
     }
 
-    // ================= GET ALL USERS IN COLLEGE =================
+    // ================= GET USERS BY COLLEGE =================
 
     @GetMapping("/users/college/{collegeId}")
     public List<User> getUsersByCollege(@PathVariable Long collegeId) {
-
         return service.getUsersByCollege(collegeId);
     }
 
@@ -64,7 +65,30 @@ public class CollegeAdminController {
     public String deactivateUser(@PathVariable Long id) {
 
         service.deactivateUser(id);
-
         return "User deactivated successfully";
+    }
+
+    // ================= CREATE DEPARTMENT WITH COURSES =================
+
+    @PostMapping("/departments")
+    public Department createDepartment(@RequestBody DepartmentDTO dto) {
+        return service.createDepartment(dto);
+    }
+
+    // ================= GET DEPARTMENTS =================
+
+    @GetMapping("/departments/{collegeId}")
+    public List<Department> getDepartments(@PathVariable Long collegeId) {
+        return service.getDepartments(collegeId);
+    }
+
+    // ================= ASSIGN DEPARTMENT ADMIN =================
+
+    @PutMapping("/assign-dept-admin/{departmentId}/{adminId}")
+    public Department assignDepartmentAdmin(
+            @PathVariable Long departmentId,
+            @PathVariable Long adminId) {
+
+        return service.assignDepartmentAdmin(departmentId, adminId);
     }
 }

@@ -1,10 +1,16 @@
 package com.yashwanth.sem.service;
 
 import com.yashwanth.sem.dto.CreateUserRequest;
+import com.yashwanth.sem.dto.CourseDTO;
+import com.yashwanth.sem.dto.DepartmentDTO;
 import com.yashwanth.sem.entity.College;
+import com.yashwanth.sem.entity.Course;
+import com.yashwanth.sem.entity.Department;
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
 import com.yashwanth.sem.repository.CollegeRepository;
+import com.yashwanth.sem.repository.CourseRepository;
+import com.yashwanth.sem.repository.DepartmentRepository;
 import com.yashwanth.sem.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,16 +27,22 @@ public class CollegeAdminService {
 
     private final UserRepository userRepository;
     private final CollegeRepository collegeRepository;
+    private final DepartmentRepository departmentRepository;
+    private final CourseRepository courseRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserIdGeneratorService idGenerator;
 
     public CollegeAdminService(UserRepository userRepository,
                                CollegeRepository collegeRepository,
+                               DepartmentRepository departmentRepository,
+                               CourseRepository courseRepository,
                                PasswordEncoder passwordEncoder,
                                UserIdGeneratorService idGenerator) {
 
         this.userRepository = userRepository;
         this.collegeRepository = collegeRepository;
+        this.departmentRepository = departmentRepository;
+        this.courseRepository = courseRepository;
         this.passwordEncoder = passwordEncoder;
         this.idGenerator = idGenerator;
     }
@@ -40,13 +52,11 @@ public class CollegeAdminService {
     public User createUser(CreateUserRequest request,
                            MultipartFile photo) throws Exception {
 
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
-        }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail()))
             throw new RuntimeException("Email already exists");
-        }
 
         College college = collegeRepository.findById(request.getCollegeId())
                 .orElseThrow(() -> new RuntimeException("College not found"));
@@ -63,9 +73,8 @@ public class CollegeAdminService {
 
         Path uploadDir = Paths.get("uploads");
 
-        if (!Files.exists(uploadDir)) {
+        if (!Files.exists(uploadDir))
             Files.createDirectories(uploadDir);
-        }
 
         Path filePath = uploadDir.resolve(fileName);
 
@@ -77,14 +86,11 @@ public class CollegeAdminService {
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         user.setDepartment(request.getDepartment());
         user.setCollegeUserId(request.getCollegeUserId());
-
         user.setSystemUserId(systemId);
-
         user.setProfilePhoto(filePath.toString());
 
         user.setRole(request.getRole());
@@ -94,17 +100,70 @@ public class CollegeAdminService {
         return userRepository.save(user);
     }
 
+    // ================= CREATE DEPARTMENT WITH COURSES =================
+
+    public Department createDepartment(DepartmentDTO dto) {
+
+        Department department = new Department();
+
+        department.setCollegeId(dto.getCollegeId());
+        department.setName(dto.getName());
+        department.setCode(dto.getCode());
+        department.setStatus("ACTIVE");
+
+        Department savedDepartment = departmentRepository.save(department);
+
+        if (dto.getCourses() != null) {
+
+            for (CourseDTO courseDTO : dto.getCourses()) {
+
+                Course course = new Course();
+
+                course.setDepartmentId(savedDepartment.getId());
+                course.setName(courseDTO.getName());
+                course.setCode(courseDTO.getCode());
+                course.setStatus("ACTIVE");
+
+                courseRepository.save(course);
+            }
+        }
+
+        return savedDepartment;
+    }
+
+    // ================= GET DEPARTMENTS =================
+
+    public List<Department> getDepartments(Long collegeId) {
+        return departmentRepository.findByCollegeId(collegeId);
+    }
+
+    // ================= ASSIGN DEPARTMENT ADMIN =================
+
+    public Department assignDepartmentAdmin(Long departmentId, Long adminId) {
+
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (admin.getRole() != Role.DEPARTMENT_ADMIN)
+            throw new RuntimeException("User is not a Department Admin");
+
+        department.setDeptAdminId(adminId);
+
+        return departmentRepository.save(department);
+    }
+
     // ================= GET USERS BY COLLEGE =================
 
     public List<User> getUsersByCollege(Long collegeId) {
-
         return userRepository.findByCollegeId(collegeId);
     }
 
     // ================= GET USERS BY ROLE =================
 
     public List<User> getUsersByRole(Long collegeId, Role role) {
-
         return userRepository.findByCollegeIdAndRole(collegeId, role);
     }
 
