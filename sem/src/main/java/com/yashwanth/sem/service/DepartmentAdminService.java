@@ -1,13 +1,13 @@
 package com.yashwanth.sem.service;
 
+import com.yashwanth.sem.entity.AcademicYear;
 import com.yashwanth.sem.entity.Course;
 import com.yashwanth.sem.entity.Subject;
-import com.yashwanth.sem.entity.TeacherSubject;
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
+import com.yashwanth.sem.repository.AcademicYearRepository;
 import com.yashwanth.sem.repository.CourseRepository;
 import com.yashwanth.sem.repository.SubjectRepository;
-import com.yashwanth.sem.repository.TeacherSubjectRepository;
 import com.yashwanth.sem.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
@@ -19,18 +19,18 @@ public class DepartmentAdminService {
 
     private final CourseRepository courseRepository;
     private final SubjectRepository subjectRepository;
-    private final TeacherSubjectRepository teacherSubjectRepository;
     private final UserRepository userRepository;
+    private final AcademicYearRepository academicYearRepository;
 
     public DepartmentAdminService(CourseRepository courseRepository,
                                   SubjectRepository subjectRepository,
-                                  TeacherSubjectRepository teacherSubjectRepository,
-                                  UserRepository userRepository) {
+                                  UserRepository userRepository,
+                                  AcademicYearRepository academicYearRepository) {
 
         this.courseRepository = courseRepository;
         this.subjectRepository = subjectRepository;
-        this.teacherSubjectRepository = teacherSubjectRepository;
         this.userRepository = userRepository;
+        this.academicYearRepository = academicYearRepository;
     }
 
     // ================= ASSIGN / UPDATE HOD =================
@@ -52,12 +52,24 @@ public class DepartmentAdminService {
         return courseRepository.save(course);
     }
 
+    // ================= UPDATE CLASS NAME =================
+
+    public AcademicYear updateClassName(Long academicYearId, String className){
+
+        AcademicYear year = academicYearRepository.findById(academicYearId)
+                .orElseThrow(() -> new RuntimeException("Academic year not found"));
+
+        year.setClassName(className);
+
+        return academicYearRepository.save(year);
+    }
+
     // ================= CREATE SUBJECT =================
 
     public Subject createSubject(Subject subject) {
 
-        courseRepository.findById(subject.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+        academicYearRepository.findById(subject.getAcademicYearId())
+                .orElseThrow(() -> new RuntimeException("Academic year not found"));
 
         return subjectRepository.save(subject);
     }
@@ -67,8 +79,10 @@ public class DepartmentAdminService {
     public List<Subject> createSubjects(List<Subject> subjects) {
 
         for (Subject subject : subjects) {
-            courseRepository.findById(subject.getCourseId())
-                    .orElseThrow(() -> new RuntimeException("Course not found for subject: " + subject.getName()));
+
+            academicYearRepository.findById(subject.getAcademicYearId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Academic year not found for subject: " + subject.getName()));
         }
 
         return subjectRepository.saveAll(subjects);
@@ -76,7 +90,7 @@ public class DepartmentAdminService {
 
     // ================= UPDATE SUBJECT =================
 
-    public Subject updateSubject(Long subjectId, Subject updatedSubject){
+    public Subject updateSubject(Long subjectId, Subject updatedSubject) {
 
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
@@ -90,7 +104,7 @@ public class DepartmentAdminService {
 
     // ================= DELETE SUBJECT =================
 
-    public void deleteSubject(Long subjectId){
+    public void deleteSubject(Long subjectId) {
 
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
@@ -98,92 +112,13 @@ public class DepartmentAdminService {
         subjectRepository.delete(subject);
     }
 
-    // ================= GET SUBJECTS BY COURSE =================
+    // ================= GET SUBJECTS BY ACADEMIC YEAR =================
 
-    public List<Subject> getSubjectsByCourse(Long courseId){
+    public List<Subject> getSubjectsByAcademicYear(Long academicYearId) {
 
-        courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+        academicYearRepository.findById(academicYearId)
+                .orElseThrow(() -> new RuntimeException("Academic year not found"));
 
-        return subjectRepository.findByCourseId(courseId);
-    }
-
-    // ================= ASSIGN TEACHER =================
-
-    public String assignTeacherToSubject(Long teacherId,
-                                         Long subjectId,
-                                         int hours){
-
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
-
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
-
-        if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.HOD) {
-            throw new RuntimeException("Only teachers or HOD can teach subjects");
-        }
-
-        if (!teacherSubjectRepository.findBySubjectId(subjectId).isEmpty()) {
-            throw new RuntimeException("Subject already assigned to a teacher");
-        }
-
-        int totalHours = teacherSubjectRepository.sumHoursByTeacher(teacherId);
-
-        if (totalHours + hours > 5) {
-            throw new RuntimeException("Teacher workload exceeded 5 hours across college");
-        }
-
-        TeacherSubject assignment = new TeacherSubject();
-
-        assignment.setTeacherId(teacherId);
-        assignment.setSubjectId(subjectId);
-        assignment.setHours(hours);
-
-        teacherSubjectRepository.save(assignment);
-
-        return "Teacher assigned successfully";
-    }
-
-    // ================= REPLACE TEACHER =================
-
-    public String replaceTeacher(Long subjectId,
-                                 Long newTeacherId,
-                                 int hours){
-
-        List<TeacherSubject> existing = teacherSubjectRepository.findBySubjectId(subjectId);
-
-        if(existing.isEmpty()){
-            throw new RuntimeException("Subject has no assigned teacher yet");
-        }
-
-        TeacherSubject assignment = existing.get(0);
-
-        int totalHours = teacherSubjectRepository.sumHoursByTeacher(newTeacherId);
-
-        if(totalHours + hours > 5){
-            throw new RuntimeException("Teacher workload exceeded");
-        }
-
-        assignment.setTeacherId(newTeacherId);
-        assignment.setHours(hours);
-
-        teacherSubjectRepository.save(assignment);
-
-        return "Teacher replaced successfully";
-    }
-
-    // ================= TEACHER WORKLOAD =================
-
-    public int getTeacherWorkload(Long teacherId){
-
-        return teacherSubjectRepository.sumHoursByTeacher(teacherId);
-    }
-
-    // ================= SUBJECTS TAUGHT BY TEACHER =================
-
-    public List<TeacherSubject> getTeacherSubjects(Long teacherId){
-
-        return teacherSubjectRepository.findByTeacherId(teacherId);
+        return subjectRepository.findByAcademicYearId(academicYearId);
     }
 }

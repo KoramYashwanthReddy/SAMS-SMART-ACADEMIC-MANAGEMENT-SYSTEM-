@@ -3,23 +3,18 @@ package com.yashwanth.sem.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "subjects")
-public class Subject {
+@Table(name = "class_sections")
+public class ClassSection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Subjects belong to Academic Year
     private Long academicYearId;
 
     private String name;
 
-    private String code;
-
-    private int hoursPerWeek;
-
-    public Subject(){}
+    public ClassSection(){}
 
     public Long getId() {
         return id;
@@ -39,21 +34,5 @@ public class Subject {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public int getHoursPerWeek() {
-        return hoursPerWeek;
-    }
-
-    public void setHoursPerWeek(int hoursPerWeek) {
-        this.hoursPerWeek = hoursPerWeek;
     }
 }

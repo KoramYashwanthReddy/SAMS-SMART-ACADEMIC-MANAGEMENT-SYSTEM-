@@ -3,11 +3,13 @@ package com.yashwanth.sem.service;
 import com.yashwanth.sem.dto.CreateUserRequest;
 import com.yashwanth.sem.dto.CourseDTO;
 import com.yashwanth.sem.dto.DepartmentDTO;
+import com.yashwanth.sem.entity.AcademicYear;
 import com.yashwanth.sem.entity.College;
 import com.yashwanth.sem.entity.Course;
 import com.yashwanth.sem.entity.Department;
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
+import com.yashwanth.sem.repository.AcademicYearRepository;
 import com.yashwanth.sem.repository.CollegeRepository;
 import com.yashwanth.sem.repository.CourseRepository;
 import com.yashwanth.sem.repository.DepartmentRepository;
@@ -29,6 +31,7 @@ public class CollegeAdminService {
     private final CollegeRepository collegeRepository;
     private final DepartmentRepository departmentRepository;
     private final CourseRepository courseRepository;
+    private final AcademicYearRepository academicYearRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserIdGeneratorService idGenerator;
 
@@ -36,6 +39,7 @@ public class CollegeAdminService {
                                CollegeRepository collegeRepository,
                                DepartmentRepository departmentRepository,
                                CourseRepository courseRepository,
+                               AcademicYearRepository academicYearRepository,
                                PasswordEncoder passwordEncoder,
                                UserIdGeneratorService idGenerator) {
 
@@ -43,6 +47,7 @@ public class CollegeAdminService {
         this.collegeRepository = collegeRepository;
         this.departmentRepository = departmentRepository;
         this.courseRepository = courseRepository;
+        this.academicYearRepository = academicYearRepository;
         this.passwordEncoder = passwordEncoder;
         this.idGenerator = idGenerator;
     }
@@ -113,18 +118,36 @@ public class CollegeAdminService {
 
         Department savedDepartment = departmentRepository.save(department);
 
-        if (dto.getCourses() != null) {
+        // ================= CREATE COURSES =================
+
+        if (dto.getCourses() != null && !dto.getCourses().isEmpty()) {
 
             for (CourseDTO courseDTO : dto.getCourses()) {
+
+                if (courseDTO.getDurationYears() <= 0) {
+                    throw new RuntimeException("Course duration must be greater than 0");
+                }
 
                 Course course = new Course();
 
                 course.setDepartmentId(savedDepartment.getId());
                 course.setName(courseDTO.getName());
                 course.setCode(courseDTO.getCode());
+                course.setDurationYears(courseDTO.getDurationYears());
                 course.setStatus("ACTIVE");
 
-                courseRepository.save(course);
+                Course savedCourse = courseRepository.save(course);
+
+                // ================= AUTO CREATE ACADEMIC YEARS =================
+
+                for (int i = 1; i <= savedCourse.getDurationYears(); i++) {
+
+                    AcademicYear year = new AcademicYear();
+                    year.setCourseId(savedCourse.getId());
+                    year.setYearNumber(i);
+
+                    academicYearRepository.save(year);
+                }
             }
         }
 

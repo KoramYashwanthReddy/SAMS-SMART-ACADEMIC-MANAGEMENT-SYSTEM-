@@ -16,6 +16,8 @@ public class Course {
 
     private String code;
 
+    private int durationYears;   // NEW FIELD
+
     private Long hodId;
 
     private String status;
@@ -26,21 +28,39 @@ public class Course {
 
     public Long getDepartmentId() { return departmentId; }
 
-    public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
 
     public String getName() { return name; }
 
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getCode() { return code; }
 
-    public void setCode(String code) { this.code = code; }
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public int getDurationYears() {
+        return durationYears;
+    }
+
+    public void setDurationYears(int durationYears) {
+        this.durationYears = durationYears;
+    }
 
     public Long getHodId() { return hodId; }
 
-    public void setHodId(Long hodId) { this.hodId = hodId; }
+    public void setHodId(Long hodId) {
+        this.hodId = hodId;
+    }
 
     public String getStatus() { return status; }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

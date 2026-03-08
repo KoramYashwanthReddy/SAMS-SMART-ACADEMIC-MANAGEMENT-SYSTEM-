@@ -1,8 +1,8 @@
 package com.yashwanth.sem.controller;
 
+import com.yashwanth.sem.entity.AcademicYear;
 import com.yashwanth.sem.entity.Course;
 import com.yashwanth.sem.entity.Subject;
-import com.yashwanth.sem.entity.TeacherSubject;
 import com.yashwanth.sem.service.DepartmentAdminService;
 
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,16 @@ public class DepartmentAdminController {
     public Course assignHod(@PathVariable Long courseId,
                             @PathVariable Long teacherId){
 
-        return service.assignOrUpdateHod(courseId,teacherId);
+        return service.assignOrUpdateHod(courseId, teacherId);
+    }
+
+    // ================= UPDATE CLASS NAME =================
+
+    @PutMapping("/academic-years/{id}/class")
+    public AcademicYear updateClassName(@PathVariable Long id,
+                                        @RequestParam String className){
+
+        return service.updateClassName(id, className);
     }
 
     // ================= CREATE SUBJECT =================
@@ -62,47 +71,11 @@ public class DepartmentAdminController {
         return "Subject deleted successfully";
     }
 
-    // ================= GET SUBJECTS BY COURSE =================
+    // ================= GET SUBJECTS BY ACADEMIC YEAR =================
 
-    @GetMapping("/subjects/course/{courseId}")
-    public List<Subject> getSubjects(@PathVariable Long courseId){
+    @GetMapping("/subjects/year/{academicYearId}")
+    public List<Subject> getSubjects(@PathVariable Long academicYearId){
 
-        return service.getSubjectsByCourse(courseId);
-    }
-
-    // ================= ASSIGN TEACHER =================
-
-    @PostMapping("/assign-teacher")
-    public String assignTeacher(@RequestParam Long teacherId,
-                                @RequestParam Long subjectId,
-                                @RequestParam int hours){
-
-        return service.assignTeacherToSubject(teacherId,subjectId,hours);
-    }
-
-    // ================= REPLACE TEACHER =================
-
-    @PutMapping("/replace-teacher")
-    public String replaceTeacher(@RequestParam Long subjectId,
-                                 @RequestParam Long newTeacherId,
-                                 @RequestParam int hours){
-
-        return service.replaceTeacher(subjectId,newTeacherId,hours);
-    }
-
-    // ================= TEACHER WORKLOAD =================
-
-    @GetMapping("/teacher-workload/{teacherId}")
-    public int getTeacherWorkload(@PathVariable Long teacherId){
-
-        return service.getTeacherWorkload(teacherId);
-    }
-
-    // ================= SUBJECTS OF TEACHER =================
-
-    @GetMapping("/teacher-subjects/{teacherId}")
-    public List<TeacherSubject> getTeacherSubjects(@PathVariable Long teacherId){
-
-        return service.getTeacherSubjects(teacherId);
+        return service.getSubjectsByAcademicYear(academicYearId);
     }
 }
