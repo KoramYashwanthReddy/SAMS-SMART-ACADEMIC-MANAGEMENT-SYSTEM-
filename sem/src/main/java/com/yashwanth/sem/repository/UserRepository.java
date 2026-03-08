@@ -40,11 +40,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ================= USERS BY COLLEGE =================
 
-    List<User> findByCollegeId(Long collegeId);
+    List<User> findByCollege_Id(Long collegeId);
 
     // ================= USERS BY ROLE IN COLLEGE =================
 
-    List<User> findByCollegeIdAndRole(Long collegeId, Role role);
+    List<User> findByCollege_IdAndRole(Long collegeId, Role role);
 
     // ================= USERS BY DEPARTMENT =================
 
@@ -56,11 +56,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ================= USERS BY COLLEGE + DEPARTMENT =================
 
-    List<User> findByCollegeIdAndDepartment(Long collegeId, String department);
+    List<User> findByCollege_IdAndDepartment(Long collegeId, String department);
 
     // ================= TEACHERS IN DEPARTMENT =================
 
-    List<User> findByCollegeIdAndDepartmentAndRole(
+    List<User> findByCollege_IdAndDepartmentAndRole(
             Long collegeId,
             String department,
             Role role
@@ -70,7 +70,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRole(Role role);
 
-    long countByCollegeId(Long collegeId);
+    long countByCollege_Id(Long collegeId);
 
     long countByDepartment(String department);
 

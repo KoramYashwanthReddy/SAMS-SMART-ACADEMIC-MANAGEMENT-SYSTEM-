@@ -40,13 +40,28 @@ public class DepartmentAdminService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        User teacher = userRepository.findById(teacherId)
+        User newTeacher = userRepository.findById(teacherId)
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
-        if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.HOD) {
-            throw new RuntimeException("Only teachers can become HOD");
+        if (newTeacher.getRole() != Role.TEACHER && newTeacher.getRole() != Role.HOD) {
+            throw new RuntimeException("Only teachers can be assigned as HOD");
         }
 
+        // STEP 1: revert old HOD role back to TEACHER
+        if (course.getHodId() != null) {
+
+            User oldHod = userRepository.findById(course.getHodId())
+                    .orElseThrow(() -> new RuntimeException("Old HOD not found"));
+
+            oldHod.setRole(Role.TEACHER);
+            userRepository.save(oldHod);
+        }
+
+        // STEP 2: assign new HOD
+        newTeacher.setRole(Role.HOD);
+        userRepository.save(newTeacher);
+
+        // STEP 3: update course
         course.setHodId(teacherId);
 
         return courseRepository.save(course);

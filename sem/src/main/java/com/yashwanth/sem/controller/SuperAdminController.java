@@ -10,6 +10,7 @@ import com.yashwanth.sem.service.CollegeService;
 import com.yashwanth.sem.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +47,8 @@ public class SuperAdminController {
 
     // ================= COLLEGE MANAGEMENT =================
 
-    @PostMapping("/colleges")
-    public ResponseEntity<College> createCollege(@RequestBody College college) {
+    @PostMapping(value = "/colleges", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<College> createCollege(@ModelAttribute College college) {
 
         return ResponseEntity.ok(collegeService.createCollege(college));
     }
@@ -64,10 +65,10 @@ public class SuperAdminController {
         return ResponseEntity.ok(collegeService.getCollegeById(id));
     }
 
-    @PutMapping("/colleges/{id}")
+    @PutMapping(value = "/colleges/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<College> updateCollege(
             @PathVariable Long id,
-            @RequestBody College college) {
+            @ModelAttribute College college) {
 
         return ResponseEntity.ok(collegeService.updateCollege(id, college));
     }
@@ -113,9 +114,9 @@ public class SuperAdminController {
 
     // ================= CREATE COLLEGE ADMIN =================
 
-    @PostMapping("/college-admin")
+    @PostMapping(value = "/college-admin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> createCollegeAdmin(
-            @RequestBody CreateCollegeAdminRequest request) {
+            @ModelAttribute CreateCollegeAdminRequest request) {
 
         return ResponseEntity.ok(userService.createCollegeAdmin(request));
     }
