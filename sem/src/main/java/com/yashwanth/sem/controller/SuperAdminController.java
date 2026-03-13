@@ -10,7 +10,6 @@ import com.yashwanth.sem.service.CollegeService;
 import com.yashwanth.sem.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +32,6 @@ public class SuperAdminController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<SuperAdminDashboardDTO> getDashboard() {
-
         return ResponseEntity.ok(collegeService.getDashboard());
     }
 
@@ -41,14 +39,14 @@ public class SuperAdminController {
 
     @GetMapping("/audit-logs")
     public ResponseEntity<List<AuditLog>> getAuditLogs() {
-
         return ResponseEntity.ok(auditService.getRecentLogs());
     }
 
     // ================= COLLEGE MANAGEMENT =================
 
-    @PostMapping(value = "/colleges", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<College> createCollege(@ModelAttribute College college) {
+    // CREATE COLLEGE (JSON SUPPORT)
+    @PostMapping("/colleges")
+    public ResponseEntity<College> createCollege(@RequestBody College college) {
 
         return ResponseEntity.ok(collegeService.createCollege(college));
     }
@@ -65,10 +63,11 @@ public class SuperAdminController {
         return ResponseEntity.ok(collegeService.getCollegeById(id));
     }
 
-    @PutMapping(value = "/colleges/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // UPDATE COLLEGE (JSON SUPPORT)
+    @PutMapping("/colleges/{id}")
     public ResponseEntity<College> updateCollege(
             @PathVariable Long id,
-            @ModelAttribute College college) {
+            @RequestBody College college) {
 
         return ResponseEntity.ok(collegeService.updateCollege(id, college));
     }
@@ -114,9 +113,10 @@ public class SuperAdminController {
 
     // ================= CREATE COLLEGE ADMIN =================
 
-    @PostMapping(value = "/college-admin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // JSON SUPPORT
+    @PostMapping("/college-admin")
     public ResponseEntity<User> createCollegeAdmin(
-            @ModelAttribute CreateCollegeAdminRequest request) {
+            @RequestBody CreateCollegeAdminRequest request) {
 
         return ResponseEntity.ok(userService.createCollegeAdmin(request));
     }

@@ -15,6 +15,9 @@ public class CreateUserRequest {
     // ID given by college
     private String collegeUserId;
 
+    // Profile photo path returned from upload API
+    private String profilePhoto;
+
     private Role role;
 
     private Long collegeId;
@@ -73,6 +76,14 @@ public class CreateUserRequest {
 
     public void setCollegeUserId(String collegeUserId) {
         this.collegeUserId = collegeUserId;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 
     public Role getRole() {

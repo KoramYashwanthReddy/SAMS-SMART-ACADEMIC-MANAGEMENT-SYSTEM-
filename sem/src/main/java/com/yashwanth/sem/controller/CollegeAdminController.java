@@ -6,6 +6,7 @@ import com.yashwanth.sem.entity.Department;
 import com.yashwanth.sem.entity.User;
 import com.yashwanth.sem.enums.Role;
 import com.yashwanth.sem.service.CollegeAdminService;
+import com.yashwanth.sem.service.FileUploadService;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,19 +18,28 @@ import java.util.List;
 public class CollegeAdminController {
 
     private final CollegeAdminService service;
+    private final FileUploadService fileUploadService;
 
-    public CollegeAdminController(CollegeAdminService service) {
+    public CollegeAdminController(CollegeAdminService service,
+                                  FileUploadService fileUploadService) {
         this.service = service;
+        this.fileUploadService = fileUploadService;
     }
 
-    // ================= CREATE USERS =================
+    // ================= UPLOAD PHOTO =================
+
+    @PostMapping("/upload-photo")
+    public String uploadPhoto(@RequestParam("file") MultipartFile file) throws Exception {
+
+        return fileUploadService.uploadProfilePhoto(file);
+    }
+
+    // ================= CREATE USER =================
 
     @PostMapping("/users")
-    public User createUser(
-            @ModelAttribute CreateUserRequest request,
-            @RequestParam("photo") MultipartFile photo) throws Exception {
+    public User createUser(@RequestBody CreateUserRequest request) {
 
-        return service.createUser(request, photo);
+        return service.createUser(request);
     }
 
     // ================= GET USERS BY COLLEGE =================
@@ -68,7 +78,7 @@ public class CollegeAdminController {
         return "User deactivated successfully";
     }
 
-    // ================= CREATE DEPARTMENT WITH COURSES =================
+    // ================= CREATE DEPARTMENT =================
 
     @PostMapping("/departments")
     public Department createDepartment(@RequestBody DepartmentDTO dto) {
